@@ -1,57 +1,37 @@
-import aiohttp
-from aiohttp import web
-import json
+import typer
+from dotenv import load_dotenv
 
-from apiscribe.core.analyzer import Analyzer
-from apiscribe.core.collector import Collector
+from apiscribe.core.config import Config
+from apiscribe.core.proxy import ProxyServer
+from apiscribe.generator.openapi import OpenAPIGenerator
+from apiscribe.generator.exporter import Exporter
+
+load_dotenv()
+
+app = typer.Typer()
+proxy_instance = None
 
 
-class ProxyServer:
-    def __init__(self, target_host: str):
-        self.target_host = target_host
-        self.analyzer = Analyzer()
-        self.collector = Collector()
+@app.command()
+def start():
+    global proxy_instance
 
-    async def handle(self, request: web.Request):
-        async with aiohttp.ClientSession() as session:
-            body = await request.read()
+    config = Config()  # читаем из env
+    proxy_instance = ProxyServer(config)
 
-            async with session.request(
-                method=request.method,
-                url=f"{self.target_host}{request.rel_url}",
-                headers=request.headers,
-                data=body,
-            ) as response:
+    proxy_instance.run()
 
-                resp_body = await response.read()
 
-                try:
-                    req_json = json.loads(body) if body else None
-                except:
-                    req_json = None
+@app.command()
+def export(output: str = "openapi.json"):
+    generator = OpenAPIGenerator()
+    exporter = Exporter()
 
-                try:
-                    resp_json = json.loads(resp_body) if resp_body else None
-                except:
-                    resp_json = None
+    endpoints = proxy_instance.collector.get_endpoints()
+    spec = generator.generate(endpoints)
 
-                req_schema = self.analyzer.generate_schema(req_json) if req_json else None
-                resp_schema = self.analyzer.generate_schema(resp_json) if resp_json else None
+    exporter.to_json(spec, output)
 
-                self.collector.collect(
-                    str(request.rel_url),
-                    request.method,
-                    req_schema,
-                    resp_schema,
-                )
 
-                return web.Response(
-                    body=resp_body,
-                    status=response.status,
-                    headers=response.headers,
-                )
-
-    def run(self, port: int):
-        app = web.Application()
-        app.router.add_route("*", "/{path:.*}", self.handle)
-        web.run_app(app, port=port)
+if __name__ == "__main__":
+    app()
