@@ -42,7 +42,3 @@ def start(
         exporter.to_json(spec, output)
 
         typer.echo(f"Specification saved to {output}")
-
-
-if __name__ == "__main__":
-    app()
