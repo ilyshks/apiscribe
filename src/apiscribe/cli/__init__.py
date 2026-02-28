@@ -4,30 +4,44 @@
 """
 
 import typer
+from dotenv import load_dotenv
+
+from apiscribe.core.config import Config
 from apiscribe.core.proxy import ProxyServer
+from apiscribe.core.collector import Collector
 from apiscribe.generator.openapi import OpenAPIGenerator
 from apiscribe.generator.exporter import Exporter
 
+load_dotenv()
+
 app = typer.Typer()
-proxy_instance = None
 
 
 @app.command()
-def start(target: str, port: int = 8000):
-    global proxy_instance
-    proxy_instance = ProxyServer(target)
-    proxy_instance.run(port)
+def start(
+    target_url: str = typer.Option(..., "--target-url", "-t", help="Target API URL"),
+    output: str = typer.Option("openapi.json", "--output", "-o", help="Output file"),
+):
+    """
+    Запуск прокси-сервера и автоматический экспорт спецификации при остановке.
+    """
 
+    config = Config(target_url=target_url)
+    collector = Collector()
+    proxy = ProxyServer(config=config, collector=collector)
 
-@app.command()
-def export(output: str = "openapi.json"):
-    generator = OpenAPIGenerator()
-    exporter = Exporter()
+    try:
+        proxy.run()
+    except KeyboardInterrupt:
+        typer.echo("\nStopping proxy and generating OpenAPI...")
 
-    endpoints = proxy_instance.collector.get_endpoints()
-    spec = generator.generate(endpoints)
+        generator = OpenAPIGenerator()
+        spec = generator.generate(collector.get_endpoints())
 
-    exporter.to_json(spec, output)
+        exporter = Exporter()
+        exporter.to_json(spec, output)
+
+        typer.echo(f"Specification saved to {output}")
 
 
 if __name__ == "__main__":
