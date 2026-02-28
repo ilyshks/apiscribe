@@ -9,10 +9,10 @@ from apiscribe.core.config import Config
 
 
 class ProxyServer:
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, collector: Collector):
         self.config = config
+        self.collector = collector
         self.analyzer = Analyzer()
-        self.collector = Collector()
 
     async def handle(self, request: web.Request):
 
