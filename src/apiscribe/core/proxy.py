@@ -153,4 +153,18 @@ class ProxyServer:
     def run(self):
         app = web.Application()
         app.router.add_route("*", "/{path:.*}", self.handle)
-        web.run_app(app, host=self.config.host, port=self.config.port)
+
+        self.runner = web.AppRunner(app)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        async def start():
+            await self.runner.setup()
+            site = web.TCPSite(self.runner, self.config.host, self.config.port)
+            await site.start()
+
+        loop.run_until_complete(start())
+        loop.run_forever()
+    
+    async def shutdown(self):
+        await self.runner.cleanup()
