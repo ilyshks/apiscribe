@@ -30,15 +30,15 @@ def start(
     collector = Collector()
     proxy = ProxyServer(config=config, collector=collector)
 
-    try:
-        proxy.run()
-    except KeyboardInterrupt:
-        typer.echo("\nStopping proxy and generating OpenAPI...")
 
-        generator = OpenAPIGenerator()
-        spec = generator.generate(collector.get_endpoints())
+    proxy.run()
 
-        exporter = Exporter()
-        exporter.to_json(spec, output)
+    typer.echo("\nStopping proxy and generating OpenAPI...")
 
-        typer.echo(f"Specification saved to {output}")
+    generator = OpenAPIGenerator()
+    spec = generator.generate(collector.get_endpoints())
+
+    exporter = Exporter()
+    exporter.to_json(spec, output)
+
+    typer.echo(f"Specification saved to {output}")
