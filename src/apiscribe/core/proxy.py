@@ -113,8 +113,10 @@ class ProxyServer:
                         if resp_json else None
                     )
 
+                    path = request.rel_url.path
+
                     self.collector.collect(
-                        str(request.rel_url),
+                        path,
                         request.method,
                         req_schema,
                         resp_schema,
