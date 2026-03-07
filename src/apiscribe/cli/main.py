@@ -1,6 +1,7 @@
 import typer
 import requests
 import json
+from pathlib import Path
 
 app = typer.Typer()
 
@@ -33,10 +34,18 @@ def openapi(file: str = "openapi.json"):
 
     spec = r.json()
 
-    with open(file, "w") as f:
+    # путь к папке generated_docs внутри пакета apiscribe
+    base_dir = Path(__file__).resolve().parent.parent
+    docs_dir = base_dir / "generated_docs"
+
+    docs_dir.mkdir(exist_ok=True)
+
+    output_path = docs_dir / file
+
+    with open(output_path, "w") as f:
         json.dump(spec, f, indent=2)
 
-    typer.echo(f"Saved to {file}")
+    typer.echo(f"Saved to {output_path}")
 
 
 @app.command()
