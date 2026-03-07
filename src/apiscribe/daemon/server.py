@@ -6,8 +6,8 @@ def run():
 
     app = create_app()
 
-    web.run_app(
-        app,
-        host="127.0.0.1",
-        port=9001
-    )
+    try:
+        web.run_app(app, host="127.0.0.1", port=9001)
+
+    except KeyboardInterrupt:
+        print("Daemon stopped")
