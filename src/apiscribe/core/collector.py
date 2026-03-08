@@ -13,7 +13,7 @@ class Collector:
 
         if schema.get("type") != "object":
             return []
-
+    
         return list(schema.get("properties", {}).keys())
 
     def collect(self, path: str, method: str, req_schema: dict, resp_schema: dict):
