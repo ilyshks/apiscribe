@@ -10,10 +10,15 @@ from apiscribe.core.config import Config
 
 
 class ProxyServer:
+
     def __init__(self, config: Config, collector: Collector):
+
         self.config = config
         self.collector = collector
         self.analyzer = Analyzer()
+
+        self.runner = None
+        self.site = None
 
     async def handle(self, request: web.Request):
 
@@ -27,7 +32,9 @@ class ProxyServer:
         return await self._process(request)
 
     async def _forward(self, request: web.Request):
+
         try:
+
             async with aiohttp.ClientSession(
                 timeout=aiohttp.ClientTimeout(total=self.config.timeout)
             ) as session:
@@ -74,7 +81,9 @@ class ProxyServer:
             )
 
     async def _process(self, request: web.Request):
+
         try:
+
             async with aiohttp.ClientSession(
                 timeout=aiohttp.ClientTimeout(total=self.config.timeout)
             ) as session:
@@ -95,12 +104,12 @@ class ProxyServer:
 
                     try:
                         req_json = json.loads(body) if body else None
-                    except:
+                    except Exception:
                         req_json = None
 
                     try:
                         resp_json = json.loads(resp_body) if resp_body else None
-                    except:
+                    except Exception:
                         resp_json = None
 
                     req_schema = (
@@ -152,21 +161,23 @@ class ProxyServer:
                 status=500,
             )
 
-    def run(self):
+    async def start(self):
+
         app = web.Application()
         app.router.add_route("*", "/{path:.*}", self.handle)
 
         self.runner = web.AppRunner(app)
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        await self.runner.setup()
 
-        async def start():
-            await self.runner.setup()
-            site = web.TCPSite(self.runner, self.config.host, self.config.port)
-            await site.start()
+        self.site = web.TCPSite(
+            self.runner,
+            self.config.host,
+            self.config.port,
+        )
 
-        loop.run_until_complete(start())
-        loop.run_forever()
-    
+        await self.site.start()
+
     async def shutdown(self):
-        await self.runner.cleanup()
+
+        if self.runner:
+            await self.runner.cleanup()

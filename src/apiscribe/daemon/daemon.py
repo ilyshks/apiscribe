@@ -1,5 +1,4 @@
 import asyncio
-from aiohttp import web
 
 from apiscribe.core.config import Config
 from apiscribe.core.proxy import ProxyServer
@@ -14,8 +13,6 @@ class APIScribeDaemon:
         self.collector = Collector()
         self.config = None
 
-        self.proxy_task = None
-
     async def start_proxy(self, target_url):
 
         if self.proxy:
@@ -28,12 +25,7 @@ class APIScribeDaemon:
             collector=self.collector,
         )
 
-        loop = asyncio.get_event_loop()
-
-        self.proxy_task = loop.run_in_executor(
-            None,
-            self.proxy.run
-        )
+        await self.proxy.start()
 
         return {"status": "started"}
 
@@ -42,7 +34,8 @@ class APIScribeDaemon:
         if not self.proxy:
             return {"status": "not_running"}
 
-        # пока упрощённо
+        await self.proxy.shutdown()
+
         self.proxy = None
 
         return {"status": "stopped"}
