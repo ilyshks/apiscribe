@@ -1,13 +1,12 @@
-from collections import defaultdict
+def cluster_paths(paths):
 
-
-def cluster_paths(paths: list[str]):
-
-    clusters = defaultdict(list)
+    clusters = {}
 
     for path in paths:
-        segments = path.strip("/").split("/")
-        key = len(segments)
-        clusters[key].append(path)
+
+        parts = path.strip("/").split("/")
+        key = len(parts)
+
+        clusters.setdefault(key, []).append(path)
 
     return list(clusters.values())

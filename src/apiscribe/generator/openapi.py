@@ -27,27 +27,33 @@ class OpenAPIGenerator:
 
                 example_ep = endpoint_map[(method, cluster[0])]
 
-                paths[normalized_path] = {
-                    method.lower(): {
-                        "parameters": params,
-                        "requestBody": {
-                            "content": {
-                                "application/json": {
-                                    "schema": example_ep.request_schema
-                                }
-                            }
-                        } if example_ep.request_schema else {},
-                        "responses": {
-                            "200": {
-                                "description": "Success",
+                if normalized_path not in paths:
+                    paths[normalized_path] = {}
+
+                paths[normalized_path][method.lower()] = {
+                    "parameters": params,
+                    **(
+                        {
+                            "requestBody": {
                                 "content": {
                                     "application/json": {
-                                        "schema": example_ep.response_schema
+                                        "schema": example_ep.request_schema
                                     }
-                                },
+                                }
                             }
-                        },
-                    }
+                        }
+                        if example_ep.request_schema else {}
+                    ),
+                    "responses": {
+                        "200": {
+                            "description": "Success",
+                            "content": {
+                                "application/json": {
+                                    "schema": example_ep.response_schema
+                                }
+                            },
+                        }
+                    },
                 }
 
         return {
