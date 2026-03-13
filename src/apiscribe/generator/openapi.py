@@ -14,7 +14,6 @@ class OpenAPIGenerator:
         paths_by_method = defaultdict(list)
         endpoint_map = {}
 
-        # группируем endpoints по методу
         for ep in endpoints:
             paths_by_method[ep.method].append(ep.path)
             endpoint_map[(ep.method, ep.path)] = ep
@@ -35,23 +34,25 @@ class OpenAPIGenerator:
                     getattr(example_ep, "request_count", 0),
                 )
 
-                resp_schema = example_ep.response_schema
+                responses = {}
+
+                for status, schema in example_ep.responses.items():
+
+                    responses[str(status)] = {
+                        "description": f"HTTP {status}",
+                        "content": {
+                            "application/json": {
+                                "schema": schema
+                            }
+                        },
+                    }
 
                 if normalized_path not in paths:
                     paths[normalized_path] = {}
 
                 operation = {
                     "parameters": params,
-                    "responses": {
-                        "200": {
-                            "description": "Success",
-                            "content": {
-                                "application/json": {
-                                    "schema": resp_schema
-                                }
-                            },
-                        }
-                    },
+                    "responses": responses,
                 }
 
                 if req_schema:

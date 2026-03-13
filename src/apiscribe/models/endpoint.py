@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Dict
 
 
@@ -8,8 +8,9 @@ class EndpointModel(BaseModel):
     method: str
 
     request_schema: Optional[dict] = None
-    response_schema: Optional[dict] = None
 
-    request_count: int = 0
+    responses: Dict[int, dict] = Field(default_factory=dict)
 
-    request_field_counts: Dict[str, int] = {}
+    request_count: int = 1
+
+    request_field_counts: Dict[str, int] = Field(default_factory=dict)

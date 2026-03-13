@@ -120,6 +120,7 @@ class ProxyServer:
                 self.collector.collect(
                     path,
                     request.method,
+                    response.status,
                     req_schema,
                     resp_schema,
                 )

@@ -4,7 +4,9 @@ from apiscribe.utils.schema_merge import merge_schema
 
 
 class InMemoryStorage:
+
     def __init__(self):
+
         self._endpoints: Dict[Tuple[str, str], EndpointModel] = {}
 
     def save(self, endpoint: EndpointModel):
@@ -29,10 +31,15 @@ class InMemoryStorage:
             endpoint.request_schema,
         )
 
-        existing.response_schema = merge_schema(
-            existing.response_schema,
-            endpoint.response_schema,
-        )
+        for status, schema in endpoint.responses.items():
+
+            if status not in existing.responses:
+                existing.responses[status] = schema
+            else:
+                existing.responses[status] = merge_schema(
+                    existing.responses[status],
+                    schema,
+                )
 
         self._endpoints[key] = existing
 

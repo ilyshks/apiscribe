@@ -21,31 +21,37 @@ def infer_path_template(paths: list[str]):
             if i < len(p):
                 column.append(p[i])
 
+        if not column:
+            continue
+
         unique = set(column)
 
+        # одинаковый сегмент
         if len(unique) == 1:
             template.append(column[0])
             continue
 
+        # если это несколько строк но мало значений
+        # считаем их реальными endpoint
+        if len(unique) <= 3 and not all(INT_RE.match(v) for v in column):
+            template.append(column[0])
+            continue
+
+        prev = template[-1] if template else "param"
+
         if all(INT_RE.match(v) for v in column):
 
-            prev = template[-1] if template else "param"
             name = f"{prev}_id"
-
             schema = {"type": "integer"}
 
         elif all(UUID_RE.match(v) for v in column):
 
-            prev = template[-1] if template else "param"
             name = f"{prev}_uuid"
-
             schema = {"type": "string", "format": "uuid"}
 
         else:
 
-            prev = template[-1] if template else "param"
             name = f"{prev}_param"
-
             schema = {"type": "string"}
 
         template.append(f"{{{name}}}")
