@@ -13,6 +13,8 @@ class APIScribeDaemon:
         self.collector = Collector()
         self.config = None
 
+        self.log_clients = []
+
     async def start_proxy(self, target_url):
 
         if self.proxy:
@@ -23,6 +25,7 @@ class APIScribeDaemon:
         self.proxy = ProxyServer(
             config=self.config,
             collector=self.collector,
+            daemon=self
         )
 
         await self.proxy.start()
