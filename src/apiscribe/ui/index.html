@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>API Scribe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<header class="bg-slate-900 text-white p-4 flex justify-between items-center">
+    <div class="text-xl font-bold">API Scribe</div>
+    <div class="flex items-center gap-3">
+        <button id="downloadOpenAPI" 
+                class="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-sm font-semibold flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            OpenAPI
+        </button>
+        <div id="status" class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+            Stopped
+        </div>
+    </div>
+</header>
+
+<div class="p-6">
+    <div class="flex gap-2">
+        <input id="target" value="http://localhost:5001" class="border p-2 flex-grow rounded shadow-sm">
+        <button onclick="startProxy()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow">
+            Start
+        </button>
+        <button onclick="stopProxy()" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 shadow">
+            Stop
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white p-4 rounded shadow flex flex-col items-center">
+        <div class="text-gray-500 text-sm uppercase tracking-wide">Total Requests</div>
+        <div id="totalRequests" class="text-4xl font-bold text-blue-600">0</div>
+    </div>
+    <div class="bg-white p-4 rounded shadow flex flex-col items-center">
+        <div class="text-gray-500 text-sm uppercase tracking-wide">Endpoints</div>
+        <div id="endpointCount" class="text-4xl font-bold text-green-600">0</div>
+    </div>
+    <div class="bg-white p-4 rounded shadow flex flex-col items-center">
+        <div class="text-gray-500 text-sm uppercase tracking-wide">Methods</div>
+        <div id="methodsStats" class="flex flex-wrap gap-2 justify-center mt-2"></div>
+    </div>
+</div>
+
+<!-- Endpoints Table -->
+<div class="p-6">
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl mb-2 font-semibold">Endpoints</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b bg-gray-50">
+                        <th class="p-2">Method</th>
+                        <th class="p-2">Path</th>
+                        <th class="p-2 text-right">Count</th>
+                    </tr>
+                </thead>
+                <tbody id="endpointTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Live Logs -->
+<div class="p-6">
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl mb-2 font-semibold">Live Logs</h2>
+        <div id="logs" class="bg-black text-green-400 p-4 font-mono h-64 overflow-y-auto rounded"></div>
+    </div>
+</div>
+
+<script src="api.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
