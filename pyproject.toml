@@ -1,2 +1,38 @@
-# Файл конфигурации проекта
-# Реализация будет позже
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apiscribe"
+version = "0.1.0"
+description = "Automatic OpenAPI documentation generator by analyzing API traffic"
+authors = [
+    {name = "Ilya Goryunov", email = "ilyagorunov.04@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "aiohttp",
+    "typer",
+    "requests",
+    "pydantic",
+    "python-dotenv",
+    "pyyaml",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/ilyshks/apiscribe"
+
+[project.scripts]
+apiscribe = "apiscribe.cli.main:app"
+apiscribe-daemon = "apiscribe.daemon.server:run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["apiscribe*"]
