@@ -42,15 +42,15 @@ class Analyzer:
 
         elif isinstance(data, str):
             return {"type": "string"}
+        
+        elif isinstance(data, bool):
+            return {"type": "boolean"}
 
         elif isinstance(data, int):
             return {"type": "integer"}
 
         elif isinstance(data, float):
             return {"type": "number"}
-
-        elif isinstance(data, bool):
-            return {"type": "boolean"}
 
         else:
             return {"type": "null"}
